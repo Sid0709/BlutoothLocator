@@ -1,0 +1,45 @@
+<!--Utilize a mapping API (e.g., Leaflet) to visualize and display live locations.-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blutooth Live Location Tracker</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-puOR2IcBKO4so+fL8eQeW2FRXa+/E01MZg8vZAHPXoXWggqLTPZv8iJ5gE0Cn7P2udDSBQ5GzO1hpBjOYK4KWw==" crossorigin="" />
+  <style>
+    #map { height: 400px; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-iqko+Mm1V7N8gZhZ/taalq4JoxjFMtrCBfybQlXna8cKR+GRZdsiXwI/FY3REbklucBrOpJ6ecfM6p+xPgTTA==" crossorigin=""></script>
+<script>
+  const map = L.map('map').setView([0, 0], 2);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const marker = L.marker([0, 0]).addTo(map);
+
+  function updateLocation(data) {
+    if (data.location && data.location.latitude && data.location.longitude) {
+      const { latitude, longitude } = data.location;
+      marker.setLatLng([latitude, longitude]).update();
+      map.setView([latitude, longitude]);
+    }
+  }
+
+  // Fetch live location data from the backend
+  setInterval(() => {
+    fetch('http://localhost:3000/location')
+      .then(response => response.json())
+      .then(data => updateLocation(data))
+      .catch(error => console.error('Error fetching location data:', error));
+  }, 10000);
+</script>
+
+</body>
+</html>
